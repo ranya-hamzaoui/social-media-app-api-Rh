@@ -1,0 +1,8 @@
+{
+  "SECRET_KEY":"$lkfhbsef582qfqhvdqsf54qmskdeh_flksejqezr7t5se",
+  "TOKEN_SECRET_KEY":"@social@token_secret_key",
+  "REFRESH_SECRET_KEY":"@social@refresh_token_secret_key",
+  "EXPIRE_JWT":"2h",
+  "EXPIRE_JWT_REFRESH":"2h",
+  "ALGORITHM_JWT" :"HS256"
+}
