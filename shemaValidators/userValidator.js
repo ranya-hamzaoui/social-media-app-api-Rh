@@ -22,8 +22,8 @@ exports.registerSchema = (req, res, next) => {
     password: Joi.string().min(6).max(30).required(),
     gender: Joi.string().valid('male', 'female').optional()
   });
-
-  const { error, value } = schema.validate(req.body);
+  const {email,name,password,gender} = req.body
+  const { error, value } = schema.validate({email,name,password,gender});
   if (error) {
     console.log('err', error)
     return res.status(400).json(ResponseRender(400,errors_messages.BAD_REQUEST,{message:error.message}));

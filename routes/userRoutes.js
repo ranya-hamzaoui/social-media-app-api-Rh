@@ -8,7 +8,7 @@ var userValidator = require('../shemaValidators/userValidator');
 
 
 router.post('/login',userValidator.loginSchema, userController.login);
-router.post('/register', userController.register);
+router.post('/register',userValidator.registerSchema, userController.register);
 router.get('/profile', checkAuth.verifyToken, userController.getProfile);
 router.get('/users', checkAuth.verifyToken, userController.getAllUsers);
 router.post('/refresh-token', checkAuth.verifyToken, userController.refreshToken);
