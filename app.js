@@ -11,7 +11,7 @@ const winston = require("winston"); // Librairie pour le logging avancé.
 const {ErrorHandle} = require('./middelware/errorHandle') // Gestionnaire d'erreurs personnalisé.
 const db = require('./middelware/database') // Middleware pour la connexion à la base de données.
 const config=  require('./config/server'); // Configuration du serveur (par exemple, le header "poweredBy").
-const logger = require('./middelware/logger'); // Middleware pour le logging des requêtes HTTP.
+// const logger = require('./middelware/logger'); // Middleware pour le logging des requêtes HTTP.
 
 // Chargement des routes à partir du dossier routes
 const userRoutes = require('./routes/userRoutes');
@@ -89,8 +89,8 @@ app.use(ErrorHandle);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  // console.log(`Server running on port ${PORT}`);
-  logger.debug(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
+  // logger.debug(`Server running on port ${PORT}`);
 });
 
 // Exports et configuration pour rendre l'application accessible en tant que module.
