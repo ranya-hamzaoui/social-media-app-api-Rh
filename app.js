@@ -12,7 +12,7 @@ const {ErrorHandle} = require('./middelware/errorHandle') // Gestionnaire d'erre
 const db = require('./middelware/database') // Middleware pour la connexion à la base de données.
 const config=  require('./config/server'); // Configuration du serveur (par exemple, le header "poweredBy").
 // const logger = require('./middelware/logger'); // Middleware pour le logging des requêtes HTTP.
-
+require('dotenv').config();
 // Chargement des routes à partir du dossier routes
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
