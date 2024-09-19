@@ -4,6 +4,15 @@ let config = require("../config/server");
 let path = require("path");
 const { createLogger, format, transports } = require("winston");
 
+
+// Define the logs directory
+const logDirectory = config.logsDir;
+
+// Check if the directory exists, if not, create it
+if (!fs.existsSync(logDirectory)) {
+  fs.mkdirSync(logDirectory, { recursive: true });
+}
+
 const logger = createLogger({
   level: config.debugLogging ? "debug" : "info",
   format: format.combine(
