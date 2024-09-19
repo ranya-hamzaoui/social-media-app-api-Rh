@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise; 
 
-const connectionUrl = process.env.MONGO_CONNECTION_URL || 'mongodb://127.0.0.1:27017/socialDb';
+const connectionUrl = process.env.MONGO_CONNECTION_URL 
+// || 'mongodb://127.0.0.1:27017/socialDb';
 
 const connectDB = async () => {
   try {

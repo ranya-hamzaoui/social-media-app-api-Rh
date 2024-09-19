@@ -2,6 +2,30 @@
 const Comment = require('../models/comment')
 const Post = require('../models/post')
 
+
+async function createCommentNew(req, res) {
+  try {
+    const commentObj = { ...req.body, author: req.sub.userId };
+    const createdComment = await Comment.create(commentObj);
+    
+    const post = await Post.findById(createdComment.post);
+    post.comments.push(createdComment._id);
+    await post.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Comment created successfully',
+      data: createdComment,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: `Something went wrong: ${err.message}`,
+    });
+  }
+}
+
   function createComment (req, res) {
   const commentObj = req.body 
   commentObj.author = req.sub.userId
