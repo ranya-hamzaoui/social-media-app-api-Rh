@@ -3,7 +3,7 @@ require("winston-daily-rotate-file");
 let config = require("../config/server");
 let path = require("path");
 const { createLogger, format, transports } = require("winston");
-
+const fs = require('fs')
 
 // Define the logs directory
 const logDirectory = config.logsDir;
