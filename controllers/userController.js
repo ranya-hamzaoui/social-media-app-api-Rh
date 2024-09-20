@@ -140,7 +140,8 @@ async function editProfile  (req, res){
   try {
     const userId = req.sub.userId;
     const user = await User.findById(userId);
-    
+    console.log('file name in saveeeeeee update',user, req.file.originalname)
+
     if (!user) {
       return res.status(404).send('User not found');
     }
@@ -148,7 +149,6 @@ async function editProfile  (req, res){
       //   fs.unlinkSync(user.profileImage);
       // }
     user.photo = req.file.originalname;
-    console.log('file name', req.file.originalname)
     await user.save();
 
     res.json({ message: 'Profile image updated successfully', imageUrl: req.file.path });
