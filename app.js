@@ -19,6 +19,7 @@ const postRoutes = require('./routes/postRoutes');
 var likeRoutes = require('./routes/likeRoutes');
 var followRoutes = require('./routes/followRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const upload = require('./helpers/upload');
 
 var app = express(); // Initialisation de l'application Express.
 
@@ -78,6 +79,13 @@ app.get('/api/getImageFile/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = `./uploads/${filename}`; // Adjust this to your file path
   res.sendFile(filePath, { root: __dirname });
+});
+
+
+app.get('/api/upload',upload.single('file'), (req, res) => {
+  const filename = req.params.filename;
+  console.log('file',req.file.originalname)
+  res.json( { 'root': filename });
 });
 
 // Définition des routes de l'application

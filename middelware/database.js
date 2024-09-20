@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 mongoose.Promise = global.Promise; 
 
-const connectionUrl = process.env.MONGO_CONNECTION_URL  || 'mongodb://127.0.0.1:27017/socialDb';
+const connectionUrl = 
+// process.env.MONGO_CONNECTION_URL  ||
+ 'mongodb://127.0.0.1:27017/socialDb';
 const connectDB = async () => {
   try {
     console.log('uri***********', connectionUrl)
