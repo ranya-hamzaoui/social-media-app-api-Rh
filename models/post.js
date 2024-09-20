@@ -14,7 +14,8 @@ const postSchema = new Schema({
       required: "You must supply a text"
     },
     photo: {
-      type: String
+      type: String,
+      // default : "Capture.png"
     },
     createdAt: {
       type: Date,

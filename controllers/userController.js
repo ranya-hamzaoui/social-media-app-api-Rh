@@ -1,5 +1,8 @@
 const bcrypt = require("bcryptjs");
 const User = require('../models/user');
+const Post = require('../models/post');
+const Follow = require('../models/follow');
+
 const { ResponseRender } = require('../helpers/glocal-functions');
 const  { errors_messages } = require('../constants/errors_messages');
 const  { success_messages } = require('../constants/success_messages');
@@ -7,14 +10,15 @@ const {generateToken,generateRefreshToken} = require('../middelware/jwtHelper');
 const  _ = require('lodash');
 var blacklistedTokens = []; 
 var tokenList= {}
+const upload = require('../helpers/upload')
+
 
 async function login (req, res) {
   try {
 
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    console.log('user pss', password,email)
-    
+        
     if (!user) {
       return res.status(408).json(ResponseRender(408,errors_messages.INVALID_CREDENTIALS,{ message: 'Invalid email or password'}));
     }
@@ -69,9 +73,13 @@ async function register (req, res)  {
   };
 async function getProfile (req, res)  {
     try {
-      const _id = req.sub.userId;
+      const _id = req.params.id || req.sub.userId;
       const user = await User.findOne({ _id: _id });
-      return res.status(200).json(ResponseRender(200, success_messages.USER_PROFILE_FETCHED, { user }));
+      const totalfollowings = await Follow.countDocuments({user:_id});
+      const totalPosts = await Post.countDocuments({user:_id});
+      const totalfolloweds = await Follow.countDocuments({followed:_id});
+      let response = {user, totalPosts, totalfolloweds, totalfollowings}
+      return res.status(200).json(ResponseRender(200, success_messages.USER_PROFILE_FETCHED, response));
     } catch (error) {
       console.log('user', error)
       return res.status(500).json(ResponseRender(500, errors_messages.SERVER_ERROR, { message: error.message }));
@@ -126,13 +134,36 @@ async function refreshToken  (req, res)  {
  })
 }
 
+// app.post('/api/users/:userId/upload', upload.single('profileImage'),
+
+async function editProfile  (req, res){
+  try {
+    const userId = req.sub.userId;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    // if (user.profileImage) {
+      //   fs.unlinkSync(user.profileImage);
+      // }
+    user.photo = req.file.originalname;
+    console.log('file name', req.file.originalname)
+    await user.save();
+
+    res.json({ message: 'Profile image updated successfully', imageUrl: req.file.path });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while updating the profile image' });
+  }
+}
 module.exports= {
   register,
   login,
   getProfile,
   getAllUsers,
   logout,
-  refreshToken
+  refreshToken,
+  editProfile
 }
 
   

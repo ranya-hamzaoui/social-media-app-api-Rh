@@ -10,25 +10,21 @@ const PostLike = require('../models/postLike');
 
 function savePost(req, res) {
     
-    console.log('user connected--------', req.sub)
     const post = req.body;
     const user = req.sub; 
-
     const postData = {
         description: post.description,
-        photo: 'null', 
+        photo: 'Captue.png', 
         user: user.userId
     };
 
-    console.log('userData ----------',postData)
-
     const newPost = new Post(postData);
-
     newPost.save()
         .then((postSaved) => {
             return res.status(200).json(ResponseRender(200, success_messages.ITEM_CREATED, { post: postSaved }));
         })
         .catch((error) => {
+            console.log('err ------------------ ', error)
             return res.status(500).json(ResponseRender(500, errors_messages.SERVER_ERROR, { message: 'Error saving the post' }));
         });
 }
@@ -112,8 +108,11 @@ async function getPosts(req, res) {
         const itemsPerPage = 4;
         const posts = await Post.find({})
                                 .sort('-createdAt')
-                                .populate('user')
-                                .populate('comments')
+                                .populate({
+                                    path: 'user',
+                                    select : 'name photo'
+                                })
+                                // .populate('comments')
                                 .populate({
                                     path: 'comments',
                                     options: { sort: { createdAt: -1 } }
@@ -182,20 +181,6 @@ function getPostsUser(req, res){
         });
     });
 }
-function getImageFile(req, res){
-    
-    const imageFile = req.params.imageFile;
-    const pathFile = './uploads/'+imageFile;
-        
-    fs.exists(pathFile, (exists) => {
-       if(exists){
-           res.sendFile(path.resolve(pathFile));
-       }else{
-           res.status(200).send({message: 'The image doesn´t exist'});
-       }
-    });
-    
-}
 function deletePost(req, res) {
   
     const postId = req.params.id; 
@@ -241,10 +226,17 @@ async function getAllPostByLike  (req, res) {
 
       const posts = await Post.find()
       .sort('-createdAt')
-      .populate('user')
-      .populate('comments')
+      .populate({
+        path: 'user',
+        select : 'name photo'
+       })
       .populate({
           path: 'comments',
+          select :'text user createdAt ',
+          populate : {
+            path : 'author',
+            select : 'name photo' 
+          },
           options: { sort: { createdAt: -1 } }
       })
       const result = await Promise.all(posts.map(async (post) => {
@@ -279,7 +271,6 @@ module.exports = {
     getPosts,
     getPostsByFollows,
     getPostsConnectedUser,
-    getImageFile,
     deletePost,
     editPost,
     getAllPostByLike

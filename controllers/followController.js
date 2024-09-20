@@ -46,29 +46,54 @@ function deleteFollow(req, res){
        return res.status(200).send({message: 'The unfollow is complete'});
     });   
 }
-function getFollowingUsers(req, res){
+async function getFollowingUsers(req, res){
 
-    var userId = req.sub.userId;
+    const userId = req.sub.userId;
+    const page = req.params.page || 1;    
+    const itemsPerPage = 4;
+    try {   
+    const followings =  await Follow.find({user:userId}).
+        populate({path: 'followed', select: 'name email photo'})
+        .skip((page - 1) * itemsPerPage)
+        .limit(itemsPerPage)
+        .exec();
 
-    if(req.params.id && req.params.page){
-        userId = req.params.id;
-    }
+    const totalfollowings = await Follow.countDocuments({user:userId});
+    return res.status(200).send({
+        total: totalfollowings,
+        pages: Math.ceil(totalfollowings/itemsPerPage),
+        followings,
+        page: page,
+        itemsPerPage: itemsPerPage
+     }); 
+        
+    } catch (error) {
+        return res.status(500).send({ message: 'Error returning the posts' });
+    } 
+}
+function getFollows(req, res){
+
+    const userId = req.sub.userId;
+    Follow.find({user: userId}).populate('followed')
+    .exec().
+    then((follows) => {
+        res.status(200).send({follows});
+    }).catch(err=>{
+        if(err) return res.status(500).send({message: 'Server error'});
+    })
     
-    var page = 1;
-    //If the page comes in the request
-    if(req.params.page){
-        page = req.params.page;
-    }else{
-        page = req.params.id;
-    }
+}
+//liste des personnes qui me suit 
+function getFollowedUsers(req, res){
+
+    const userId = req.user.sub;
+    const page = Number(req.params.page) || 1;
+    const itemsPerPage = 4;
     
-    
-    var itemsPerPage = 4;
-    
-    Follow.find({user:userId}).populate({path: 'followed'}).paginate(page, itemsPerPage, (err, follows, total) => {
+    Follow.find({followed:userId}).populate('user').paginate(page, itemsPerPage, (err, follows, total) => {
          if(err) return res.status(500).send({message: 'Server error'});
         
-         if(!follows) return res.status(404).send({message: 'You are not following'});
+         if(!follows) return res.status(404).send({message: 'You are not followed'});
         
         followUserIds(req.user.sub).then((value) => {
             return res.status(200).send({
@@ -80,6 +105,19 @@ function getFollowingUsers(req, res){
             });
         });
     });
+}//GET FOLLOWING LIST , la liste que moi je les suivi
+async function getunSubscribe(req,res){
+    try {
+        const userId = req.sub.userId;
+        const followedUsers = await Follow.find({ user: userId }).select('followed').lean();
+        const followedUserIds = followedUsers.map(follow => follow.followed);
+        const usersNotFollowed = await User.
+        find({ _id: { $nin: [...followedUserIds, userId] } }).
+        select( 'name photo email _id').exec()
+        res.json({data : usersNotFollowed});
+      } catch (err) {
+        res.status(500).send({ error: 'An error occurred' });
+      }
 }
 async function followUserIds(user_id){
 
@@ -114,60 +152,6 @@ async function followUserIds(user_id){
     }
     
 }
-function getFollowedUsers(req, res){
-
-    const userId = req.user.sub;
-    const page = Number(req.params.page) || 1;
-    const itemsPerPage = 4;
-    
-    Follow.find({followed:userId}).populate('user').paginate(page, itemsPerPage, (err, follows, total) => {
-         if(err) return res.status(500).send({message: 'Server error'});
-        
-         if(!follows) return res.status(404).send({message: 'You are not followed'});
-        
-        followUserIds(req.user.sub).then((value) => {
-            return res.status(200).send({
-               total: total,
-               pages: Math.ceil(total/itemsPerPage),
-               follows,
-               users_following: value.following,
-               users_follow_me: value.followed,
-            });
-        });
-    });
-}//GET FOLLOWING LIST , la liste que moi je les suivi
-function getFollows(req, res){
-
-    const userId = req.sub.userId;
-     
-    Follow.find({user: userId}).populate('followed')
-    .exec().
-    then((follows) => {
-      
-        res.status(200).send({follows});
-    }).catch(err=>{
-
-        if(err) return res.status(500).send({message: 'Server error'});
-       
-    })
-    
-}
-
-async function getunSubscribe(req,res){
-    try {
-        const userId = req.sub.userId;
-    
-        const followedUsers = await Follow.find({ user: userId }).select('followed').lean();
-        const followedUserIds = followedUsers.map(follow => follow.followed);
-        const usersNotFollowed = await User.find({ _id: { $nin: [...followedUserIds, userId] } })
-    
-        res.json({data : usersNotFollowed});
-      } catch (err) {
-        res.status(500).send({ error: 'An error occurred' });
-      }
-
-}
-
 module.exports = {
     addFollow,
     deleteFollow,

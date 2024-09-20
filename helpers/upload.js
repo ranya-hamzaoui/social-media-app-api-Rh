@@ -1,18 +1,4 @@
 const multer = require('multer');
-
-const Storage = multer.diskStorage(
-    {
-        destination: function (req, file, cb) {
-
-            cb(null, './photos/');
-
-        },
-        filename: function (req, file, cb) {
-
-            cb(null,new Date().toISOString().replace( /:/g, '-') + file.originalname)
-        }
-    });
-
 const fileFilterFN = function (req, file, cb) {
 
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif|PNG|svg)$/)) {
@@ -23,10 +9,20 @@ const fileFilterFN = function (req, file, cb) {
     }
 };
 
+const Storage = multer.diskStorage(
+    {
+        destination: function (req, file, cb) {
+            console.log('fileeeeeeee', file.originalname)
+            cb(null, './uploads/');
+        },
+        filename: function (req, file, cb) {
+            cb(null,file.originalname)
+        }
+    });
 module.exports = multer({
     storage: Storage,
-    fileFilter: fileFilterFN,
-    limits: {_fileSize: 1024 * 1024 * 5},
+    // fileFilter: fileFilterFN,
+    // limits: {_fileSize: 1024 * 1024 * 5},
 
 });
 

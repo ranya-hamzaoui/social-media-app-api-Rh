@@ -40,6 +40,8 @@ app.use(
     }
   })
 );
+app.use(cors({ origin: 'http://localhost:4200' }));
+
 app.use(cors()); // Active les CORS pour permettre les requêtes d'autres domaines.
 app.use(express.json()); // Parse le corps des requêtes JSON.
 app.use(compression()); // Compresse les réponses HTTP pour améliorer les performances.
@@ -56,13 +58,6 @@ app.use(function(req, res, next) {
   next(); // Passe au middleware suivant.
 });
 
-// Définition des routes de l'application
-app.use('/api', userRoutes); 
-app.use('/api', postRoutes);
-app.use('/api', followRoutes);
-app.use('/api', likeRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api', commentRoutes);
 
 // Configuration pour faire confiance au proxy (si l'application est derrière un proxy)
 app.enable("trust proxy"); // Active la confiance dans les en-têtes proxy.
@@ -70,13 +65,28 @@ app.set("trust proxy", 1); // Définit qu'il y a un seul proxy entre l'utilisate
 
 
 // Configuration des headers CORS pour gérer les requêtes cross-origin
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Autorise toutes les origines.
-  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization"); // Autorise certains en-têtes spécifiques.
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE"); // Autorise les méthodes HTTP spécifiques.
-  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, application/json"); // Répète certains headers autorisés.
+app.use((req, res, next) => { 
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200"); // Specify the exact origin if using credentials
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization,application/json");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+  res.setHeader("Access-Control-Allow-Credentials", "true"); // Enable credentials
   next();
 });
+
+
+app.get('/api/getImageFile/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = `./uploads/${filename}`; // Adjust this to your file path
+  res.sendFile(filePath, { root: __dirname });
+});
+
+// Définition des routes de l'application
+app.use('/api', userRoutes); 
+app.use('/api', postRoutes);
+app.use('/api', followRoutes);
+app.use('/api', likeRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api', commentRoutes);
 
 // Gestion des erreurs 404 (non trouvé), si activé
 // app.use(function(req, res, next) {

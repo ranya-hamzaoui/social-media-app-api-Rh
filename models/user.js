@@ -1,30 +1,3 @@
-// 'use strict';
-
-// var mongoose = require('mongoose');
-// var Schema = mongoose.Schema;
-
-// var UserSchema = Schema({
-//     name: String,
-//     email: {
-//         type : String ,
-//         unique: true 
-//     },
-//     password: String,
-//     photo: String,
-//     dateBirth: String,
-//     gender : String,  
-//     passwordResetToken: {
-//         type: String,
-//         select: false,
-//     }, 
-//     passwordResetExpires: {
-//         type: Date,
-//         select: false,
-//     }
-// });
-
-// module.exports = mongoose.model('User', UserSchema);
-
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
@@ -49,6 +22,14 @@ const UserSchema = new Schema({
         type: String,
         default: 'default_photo_url', 
     },
+    photoCover: {
+        type: String,
+        default: 'default_photo_url', 
+    },
+    photos: [{
+        type: String,
+        default: 'default_photo_url', 
+    }],
     dateBirth: {
         type: Date,
         required: true, 
@@ -64,6 +45,20 @@ const UserSchema = new Schema({
     passwordResetExpires: {
         type: Date,
         select: false,
+    },
+    phone: {
+        type: Number,
+        // required: [true, 'Number is required'],
+        trim: true,
+    },
+    job: {
+        type: String,
+        // required: [true, 'Job is required'],
+        trim: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     },
 });
 

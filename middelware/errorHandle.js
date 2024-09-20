@@ -7,9 +7,9 @@ function ErrorHandle (err, req, res, next) {
       boom.boomify(err);
     }
     if (err.isServer) {
-      winston.error(err, {
-        service: 'APP'
-      });
+      // winston.error(err, {
+      //   service: 'APP'
+      // });
     }
     return res.status(err.output.statusCode).json(ResponseRender(err.output.statusCode,err.output.payload.error,err.output.payload.message));    
   }
