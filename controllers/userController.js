@@ -153,6 +153,7 @@ async function editProfile  (req, res){
 
     res.json({ message: 'Profile image updated successfully', imageUrl: req.file.path });
   } catch (error) {
+    console.log('errorrrrr', error)
     res.status(500).json({ error: 'An error occurred while updating the profile image' });
   }
 }
