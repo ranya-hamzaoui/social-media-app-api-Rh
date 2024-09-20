@@ -40,7 +40,7 @@ app.use(
     }
   })
 );
-app.use(cors({ origin: 'http://localhost:4200' }));
+app.use(cors());
 
 app.use(cors()); // Active les CORS pour permettre les requêtes d'autres domaines.
 app.use(express.json()); // Parse le corps des requêtes JSON.
