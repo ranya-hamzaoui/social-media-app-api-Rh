@@ -69,7 +69,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Specify the exact origin if using credentials
   res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization,application/json");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
-  res.setHeader("Access-Control-Allow-Credentials", "true"); // Enable credentials
+  // res.setHeader("Access-Control-Allow-Credentials", "true"); // Enable credentials
   next();
 });
 
