@@ -20,7 +20,7 @@ const UserSchema = new Schema({
         },
     photo: {
         type: String,
-        default: 'default_photo_url', 
+        default: 'default_photo_url.jpg', 
     },
     photoCover: {
         type: String,
