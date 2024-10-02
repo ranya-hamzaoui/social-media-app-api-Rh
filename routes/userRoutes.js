@@ -1,20 +1,27 @@
 'use strict'
-
-var express = require('express');
-var userController = require('../controllers/userController');
-var router = express.Router();
-var checkAuth = require('../middelware/checkAuth');
-var userValidator = require('../shemaValidators/userValidator');
+const express = require('express');
+const userController = require('../controllers/userController');
+const checkAuth = require('../middelware/checkAuth');
+const userValidator = require('../shemaValidators/userValidator');
 const upload = require('../helpers/upload')
+const router = express.Router();
 
+function checkAuthExceptLogin(req, res, next) {
+    if (req.path === '/register' || req.path === '/login') {
+        return next();
+    }
+    return checkAuth.verifyToken(req, res, next);
+}
+router.use(checkAuthExceptLogin);
+
+router.post('/register', userController.register);
 router.post('/login',userValidator.loginSchema, userController.login);
-router.post('/register',userValidator.registerSchema, userController.register);
-router.get('/profile', checkAuth.verifyToken, userController.getProfile);
-router.get('/profile/:id', checkAuth.verifyToken, userController.getProfile);
-router.get('/users', checkAuth.verifyToken, userController.getAllUsers);
-router.post('/refresh-token', checkAuth.verifyToken, userController.refreshToken);
-router.post('/logout', checkAuth.verifyToken, userController.logout);
-router.put('/updatePicture',checkAuth.verifyToken,upload.single('picture'),userController.editProfile)
+router.get('/profile',  userController.getProfile);
+router.get('/profile/:id',  userController.getProfile);
+router.get('/users',  userController.getAllUsers);
+router.post('/refresh-token',  userController.refreshToken);
+router.post('/logout',  userController.logout);
+router.put('/updatePicture',upload.single('picture'),userController.editProfile)
 
 
 module.exports = router;

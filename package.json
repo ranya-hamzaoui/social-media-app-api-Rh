@@ -1,13 +1,13 @@
 {
-  "name": "socialNetworkApi",
+  "name": "social-network-api",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "www.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "start:dev": "NODE_ENV=development node app.js",
-    "start:prod": "NODE_ENV=production node app.js"
+    "start": "node bin/www",
+    "start:dev": "NODE_ENV=development nodemon bin/www",
+    "start:prod": "NODE_ENV=production node bin/www"
   },
   "keywords": [],
   "author": "",

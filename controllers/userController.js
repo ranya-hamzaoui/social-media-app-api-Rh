@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const  _ = require('lodash'); 
 const User = require('../models/user');
 const Post = require('../models/post');
 const Follow = require('../models/follow');
@@ -7,11 +8,9 @@ const { ResponseRender } = require('../helpers/glocal-functions');
 const  { errors_messages } = require('../constants/errors_messages');
 const  { success_messages } = require('../constants/success_messages');
 const {generateToken,generateRefreshToken} = require('../middelware/jwtHelper');
-const  _ = require('lodash');
+
 var blacklistedTokens = []; 
 var tokenList= {}
-const upload = require('../helpers/upload')
-
 
 async function login (req, res) {
   try {
@@ -32,45 +31,32 @@ async function login (req, res) {
     const userDetail = {_id:user._id,name:user.name,email:user.email,photo:user.photo}
     const response = {user:userDetail, token, refreshToken};
     return res.status(200).json(ResponseRender(200,success_messages.SUCCESS_LOGIN,response));
-
   } catch (error) {
-    console.log('error',error)
     return res.status(500).json(ResponseRender(500,errors_messages.SERVER_ERROR,{message: error.message}));
   }
 };
-
-async function register (req, res)  {
-    
-    const {email,name,dateBirth,gender,password} = req.body
-
-    User.findOne({email}).then((user) => {
-     if (user) return res.status(409).json(ResponseRender(409,errors_messages.ACCOUNT_ALREADY_EXIST,{}));
-     
-     bcrypt.hash(password,10,async (err, hash) => {
-          if (err) {
-            return res.status(500).json(ResponseRender(500,errors_messages.SERVER_ERROR,{message: err}));
-          } else {
-
-            const user = new User({
-              email,
-              name,
-              dateBirth,
-              gender,              
-              password: hash,
-            });
+async function register(req, res) {
+    const { email, name, dateBirth, gender, password } = req.body;
+    try {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(409).json(ResponseRender(409, errors_messages.ACCOUNT_ALREADY_EXIST, {}));
+      }
+      const hash = await bcrypt.hash(password, 10);
+      const newUser = new User({
+        email,
+        name,
+        dateBirth,
+        gender,
+        password: hash,
+      });
+      const savedUser = await newUser.save();
+      return res.status(200).json(ResponseRender(200, success_messages.ACCOUNT_CREATED, { user: savedUser }));
+    } catch (error) {
+      return res.status(500).json(ResponseRender(500, errors_messages.SERVER_ERROR, { message: error.message }));
+    }
+  }
   
-            user
-              .save()
-              .then((user) => {
-               return res.status(200).json(ResponseRender(200,success_messages.ACCOUNT_CREATED,{user}));
-              })
-              .catch((error) => {
-                 return res.status(500).json(ResponseRender(500,errors_messages.SERVER_ERROR,{message: error}));
-              });
-          }
-        });
-    });
-  };
 async function getProfile (req, res)  {
     try {
       const _id = req.params.id || req.sub.userId;
@@ -93,7 +79,6 @@ async function getAllUsers  (req, res)  {
     return res.status(500).json(ResponseRender(500, errors_messages.SERVER_ERROR, { message: error.message }));
   }
 }
-
 async function logout  (req, res) {
   const { refreshToken } = req.body;
 
@@ -133,9 +118,6 @@ async function refreshToken  (req, res)  {
    return res.status(200).json(ResponseRender(200,success_messages.SUCCESS_REFRESH,response));
  })
 }
-
-// app.post('/api/users/:userId/upload', upload.single('profileImage'),
-
 async function editProfile  (req, res){
   try {
     const userId = req.sub.userId;
@@ -146,8 +128,8 @@ async function editProfile  (req, res){
       return res.status(404).send('User not found');
     }
     // if (user.profileImage) {
-      //   fs.unlinkSync(user.profileImage);
-      // }
+    //   fs.unlinkSync(user.profileImage);
+    // }
     user.photo = req.file.originalname;
     await user.save();
 

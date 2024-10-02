@@ -5,9 +5,11 @@ const router = express.Router();
 const checkAuth = require('../middelware/checkAuth'); 
 const commentController  = require('../controllers/commentController')
 
-router.post('/comments', checkAuth.verifyToken, commentController.createComment);
-router.delete('/comments/:id', checkAuth.verifyToken, commentController.deleteComment);
-//router.get('/comments/:postId', commentController.getComments);
+router.use(checkAuth.verifyToken);
 
-
+router.post('/comments', commentController.createComment);
+router.route('/comments/:id')
+  .delete(commentController.deleteComment)
+  .put(commentController.editComment);
+  
 module.exports = router;
