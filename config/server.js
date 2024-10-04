@@ -10,7 +10,7 @@ const Server  = {
   nodeEnv: process.env.NODE_ENV,
   port: +process.env.PORT,
   debugLogging: process.env.NODE_ENV == "development",
-  logsDir: path.join('./', "logs"),
+  logsDir: path.join('./tmp', "logs"),
   port: process.env.PORT || 3004,
   certificates: {
     //todo put certifications path here

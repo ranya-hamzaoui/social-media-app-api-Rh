@@ -3,7 +3,7 @@ const app = require('../app');
 const debug = require('debug')('social-media-web-server:server');
 const http = require('http');
 const config = require('../config/server');
-const logger = require('../middelware/logger');
+// const logger = require('../middelware/logger');
 require('dotenv').config();
 const WebSocket = require('../middelware/socketApp')
 const PORT = process.env.PORT || 4000;
@@ -69,12 +69,12 @@ function onError(error) {
   switch (error.code) {
     case 'EACCES':
       debug(bind + ' requires elevated privileges');
-      logger.error(bind + ' requires elevated privileges');
+      // logger.error(bind + ' requires elevated privileges');
       process.exit(1);
       break;
     case 'EADDRINUSE':
       debug(bind + ' is already in use');
-      logger.error(bind + ' is already in use');
+      // logger.error(bind + ' is already in use');
       process.exit(1);
       break;
     default:
@@ -92,15 +92,15 @@ function onListening() {
     'pipe ' + addr :
     'port ' + addr.port;
   debug('Listening on ' + bind);
-  logger.debug('Listening on ' + bind)
+  // logger.debug('Listening on ' + bind)
 }
 /** 
  * Event Handler for uncaught exception(explicit or implicit)
  */
 function onUncaughtException(er) {
-  logger.error(er.stack, {
-    service: 'SERVER'
-  });
+  // logger.error(er.stack, {
+  //   service: 'SERVER'
+  // });
   /**
    * TODO: 
    * send an alert by mail with the stack trace 

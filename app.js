@@ -8,8 +8,8 @@ const cors = require("cors");
 const boom = require("boom"); 
 
 
-var winston = require("./middelware/logger");
-var logger = require("morgan");
+// var winston = require("./middelware/logger");
+var morgan = require("morgan");
 
 const {ErrorHandle} = require('./middelware/errorHandle') 
 const db = require('./middelware/database') 
@@ -25,11 +25,13 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
 
 
-app.use(
-  logger("dev", {
-    stream: winston.stream
-  })
-);
+// app.use(
+//   logger("dev", {
+//     stream: winston.stream
+//   })
+// );
+
+app.use(morgan('combined')); // journalisation dans la console sans fichier de logs
 app.use(helmet({}));
 app.use(cors()); 
 app.use(express.json()); 
