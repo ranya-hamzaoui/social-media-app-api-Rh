@@ -6,7 +6,7 @@ const config = require('../config/server');
 // const logger = require('../middelware/logger');
 require('dotenv').config();
 const WebSocket = require('../middelware/socketApp')
-const PORT = process.env.PORT || 4000;
+const PORT =  4000;
 app.set('port', PORT);
 
 
@@ -92,6 +92,7 @@ function onListening() {
     'pipe ' + addr :
     'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log('Listening on',bind)
   // logger.debug('Listening on ' + bind)
 }
 /** 
