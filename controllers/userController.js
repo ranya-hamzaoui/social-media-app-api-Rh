@@ -28,15 +28,15 @@ async function login (req, res) {
     }
     const token = generateToken({userId: user._id, email: user.email});
     const refreshToken = generateRefreshToken(user); 
-    const userDetail = {_id:user._id,name:user.name,email:user.email,photo:user.photo}
-    const response = {user:userDetail, token, refreshToken};
+    const userDetail = {_id:user._id,name:user.name,email:user.email,photo:user.photo,gender: user.gender ,dateBirth: user.dateBirth}
+    const response = {user, token, refreshToken};
     return res.status(200).json(ResponseRender(200,success_messages.SUCCESS_LOGIN,response));
   } catch (error) {
     return res.status(500).json(ResponseRender(500,errors_messages.SERVER_ERROR,{message: error.message}));
   }
 };
 async function register(req, res) {
-    const { email, name, dateBirth, gender, password } = req.body;
+    const { email, name, dateBirth, gender,job,phone, password } = req.body;
     try {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -48,11 +48,14 @@ async function register(req, res) {
         name,
         dateBirth,
         gender,
+        job,
+        phone,
         password: hash,
       });
       const savedUser = await newUser.save();
       return res.status(200).json(ResponseRender(200, success_messages.ACCOUNT_CREATED, { user: savedUser }));
     } catch (error) {
+      console.log('error ************', error)
       return res.status(500).json(ResponseRender(500, errors_messages.SERVER_ERROR, { message: error.message }));
     }
   }
@@ -122,7 +125,6 @@ async function editProfile  (req, res){
   try {
     const userId = req.sub.userId;
     const user = await User.findById(userId);
-    console.log('file name in saveeeeeee update',user, req.file.originalname)
 
     if (!user) {
       return res.status(404).send('User not found');
@@ -139,6 +141,30 @@ async function editProfile  (req, res){
     res.status(500).json({ error: 'An error occurred while updating the profile image' });
   }
 }
+async function editInfo(req, res) {
+  const { name, gender, dateBirth } = req.body; 
+  const {userId} = req.sub; 
+  try {
+  
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name, gender, dateBirth }, // Update the fields
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    return res.status(200).json({
+      message: 'User updated successfully.',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({ message: 'Server error.' });
+  }
+}
 module.exports= {
   register,
   login,
@@ -146,7 +172,8 @@ module.exports= {
   getAllUsers,
   logout,
   refreshToken,
-  editProfile
+  editProfile,
+  editInfo
 }
 
   

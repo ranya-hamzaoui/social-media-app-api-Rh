@@ -10,7 +10,8 @@ router.use(checkAuth.verifyToken);
 
 router.post('/posts',postController.savePost);
 router.delete('/posts/:id',postController.deletePost);
-router.put('/posts/:imageFile',postController.editPost);
+// router.put('/posts/:imageFile',postController.editPost);
+router.put('/posts/:id',postController.updatePost);
 
 router.get('/posts/:page',postController.getPosts); // list of all posts
 router.get('/posts-user/:page', postController.getConnectUserPost); // list of all posts of connected user

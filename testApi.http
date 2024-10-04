@@ -1,10 +1,35 @@
 
 @baseUrl = http://localhost:4000/api
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJJZCI6IjY2ZGU4Yzc4ODgyOWNhMjRjNTAxZmY1YSIsImVtYWlsIjoicmFuaWFAZ21haWwuY29tIn0sImlhdCI6MTcyNzg2MTQxNSwiZXhwIjoxNzI3ODY4NjE1fQ.aeCwuXTuCi931D87XF6Tdoe8cds2I9oqftzVJsY6hx8
-PUT  {{baseUrl}}/comments/66edaf7ce007898642009928
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJJZCI6IjY2ZmQ2ZGY5OWJmNzNiNTFhOTYzN2U2MCIsImVtYWlsIjoicmFuaWFAZ21haWwuY29tIn0sImlhdCI6MTcyNzg5MzU3NiwiZXhwIjoxNzI3OTAwNzc2fQ.S6Ec0Y9t7ZiULTkILWbAT5EEOy9ipJ0j4XCCMpCyPKo
+# PUT  {{baseUrl}}/comments/66edaf7ce007898642009928
+# Content-Type: application/json
+# Authorization: Bearer {{token}}
+
+# {
+#   "text": "ccc modifié"
+# }
+# POST http://localhost:4000/api/register
+# Content-Type: application/json
+
+# {
+#   "name": "john",
+#   "email": "john@gmail.com",
+#   "job": "Developer",
+#   "phone": 55555555,
+#   "password": "rania2024",
+#   "gender": "female",
+#   "dateBirth": "12/05/1995"
+# }
+
+
+# POST http://localhost:4000/api/login
+# Content-Type: application/json
+
+# {
+#    "email": "imen@gmail.com",
+#   "password": "rania2024"
+# }
+
+POST http://localhost:4000/api/chats/initiate/66fd6e769bf73b51a9637ec4/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
-
-{
-  "text": "ccc modifié"
-}

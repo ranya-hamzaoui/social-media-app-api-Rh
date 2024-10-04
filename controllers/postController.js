@@ -61,8 +61,30 @@ async function editPost(req, res) {
         return res.status(500).json(ResponseRender(500, errors_messages.SERVER_ERROR, { message: 'Error updating the post' }));
     }
 }
+async function updatePost(req, res) {
+    const {id} = req.params; 
+    const {userId} = req.sub; 
+    const postUpdates = req.body;
+
+    try {
+        const updatedPost = await Post.findOneAndUpdate(
+            { _id: id, user: userId }, 
+            { $set: postUpdates },
+            { new: true }
+        );
+        if (!updatedPost) {
+            return res.status(404).json(ResponseRender(404, errors_messages.ITEM_NOT_FOUND, { message: 'Post not found or user is not authorized' }));
+        }
+        return res.status(200).json(ResponseRender(200, success_messages.ITEM_UPDATED, { post: updatedPost }));
+    } catch (error) {
+        console.error('Error updating the post:', error); // Log the error for debugging
+        return res.status(500).json(ResponseRender(500, errors_messages.SERVER_ERROR, { message: 'Error updating the post' }));
+    }
+}
 async function getAllPostwithLike(req, res) {
     const userId = req.sub.userId;
+    const page = Number(req.params.page)|| 1;
+    const itemsPerPage = Number(req.params.perPage) || 4;
     try {
       const posts = await Post.find({})
       .sort('-createdAt')
@@ -79,6 +101,11 @@ async function getAllPostwithLike(req, res) {
           },
           options: { sort: { createdAt: -1 } }
       })
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage)
+      .exec();
+
+      const totalPosts = await Post.countDocuments({});
       const result = await Promise.all(posts.map(async (post) => {
       const postLike = await PostLike.findOne({ post: post._id });
       let likedByMe = false;
@@ -95,20 +122,37 @@ async function getAllPostwithLike(req, res) {
             likeCount          
           };
       }));
-      res.json(result);
+      let response = {
+        count: totalPosts,
+        totals: Math.ceil(totalPosts / itemsPerPage),
+        currentPage: page,
+        itemsPerPage: itemsPerPage,
+        result
+    }
+      res.json(response);
     } catch (error) {
+      console.log('error ---------------- ', error)
       res.status(500).json({ message: 'Error fetching posts', error });
     }
 }
 async function getConnectUserPost(req, res) {
     try {
         const page = Number(req.params.page)|| 1;
-        const itemsPerPage = 10;
+        const itemsPerPage = Number(req.params.perPage) || 4;
         const {userId} = req.sub;
 
         const posts = await Post.find({ user: userId })
                                 .sort('-createdAt')
                                 .populate('user')
+                                .populate({
+                                    path: 'comments',
+                                    select :'text user createdAt ',
+                                    populate : {
+                                      path : 'author',
+                                      select : 'name photo' 
+                                    },
+                                    options: { sort: { createdAt: -1 } }
+                                })
                                 .skip((page - 1) * itemsPerPage)
                                 .limit(itemsPerPage)
                                 .exec();
@@ -133,13 +177,11 @@ async function getConnectUserPost(req, res) {
                   likeCount          
                 };
             }));
-        
         const totalPosts = await Post.countDocuments({ user: userId });
-
         return res.status(200).send({
-            totalPages: totalPosts,
-            pages: Math.ceil(totalPosts / itemsPerPage),
-            page: page,
+            count: totalPosts,
+            totals: Math.ceil(totalPosts / itemsPerPage),
+            currentPage: page,
             itemsPerPage: itemsPerPage,
             result
         });
@@ -152,34 +194,41 @@ async function getConnectUserPost(req, res) {
 async function getPostsByFollows(req, res) {
     try {
         const page = Number(req.params.page)|| 1;
-        const itemsPerPage = Number(req.params.perPage)|| 10;
+        const itemsPerPage = Number(req.params.perPage)|| 1;
         const {userId} = req.sub;
 
-        const follows = await Follow.find({ user: userId }).populate('followed').exec();
-
+        var follows = await Follow.find({ user: userId }).populate('followed').exec();
         if (!follows) {
             return res.status(404).send({ message: 'No follows found' });
         }
-
-        const follows_clean = follows.map(follow => { console.log(follow.followed); follow.followed });
-        follows_clean.push(userId); 
-
+        let follows_clean = []
+        follows.forEach((element) => {
+            follows_clean.push(element.followed._id)
+         });
         const posts = await Post.find({ user: { "$in": follows_clean } })
                                 .sort('-createdAt')
                                 .populate('user')
+                                .populate({
+                                    path: 'comments',
+                                    select :'text user createdAt ',
+                                    populate : {
+                                      path : 'author',
+                                      select : 'name photo' 
+                                    },
+                                    options: { sort: { createdAt: -1 } }
+                                })
                                 .skip((page - 1) * itemsPerPage)
                                 .limit(itemsPerPage)
                                 .exec();
-
         const totalPosts = await Post.countDocuments({ user: { "$in": follows_clean } });
-
+        
         if (!posts || posts.length === 0) {
             return res.status(404).send({ message: 'No posts available' });
         }
         return res.status(200).send({
-            totalPages: totalPosts,
-            pages: Math.ceil(totalPosts / itemsPerPage),
-            page: page,
+            count: totalPosts,
+            totals: Math.ceil(totalPosts / itemsPerPage),
+            currentPage: page,
             itemsPerPage: itemsPerPage,
             posts
         });
@@ -211,9 +260,9 @@ async function getPosts(req, res) {
             return res.status(404).send({ message: 'No posts available',posts : [] });
         }
         return res.status(200).send({
-            totalPages: totalPosts,
-            pages: Math.ceil(totalPosts / itemsPerPage),
-            page: page,
+            count: totalPosts,
+            totals: Math.ceil(totalPosts / itemsPerPage),
+            currentPage: page,
             itemsPerPage: itemsPerPage,
             posts
         });
@@ -228,6 +277,6 @@ module.exports = {
     getConnectUserPost,
     deletePost,
     editPost,
-    getAllPostwithLike
+    getAllPostwithLike,
+    updatePost
 }
-//cc

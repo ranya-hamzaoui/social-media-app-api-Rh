@@ -22,6 +22,7 @@ router.get('/users',  userController.getAllUsers);
 router.post('/refresh-token',  userController.refreshToken);
 router.post('/logout',  userController.logout);
 router.put('/updatePicture',upload.single('picture'),userController.editProfile)
+router.put('/editinfo',userController.editInfo)
 
 
 module.exports = router;

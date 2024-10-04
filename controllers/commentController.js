@@ -73,7 +73,7 @@ async function deleteComment(req, res) {
 }
 async function editComment(req, res) {
   try {
-    console.log('edit comment')
+    console.log('edit comment', req.body.text)
 
     const commentId = req.params.id;
     const existingComment = await Comment.findById(commentId);
@@ -100,6 +100,7 @@ async function editComment(req, res) {
       });
     }
   catch (err) {
+    console.log('err',err)
     return res.status(500).json({
       success: false,
       message: `Something went wrong: ${err.message}`,
