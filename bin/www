@@ -6,24 +6,24 @@ const config = require('../config/server');
 // const logger = require('../middelware/logger');
 require('dotenv').config();
 const WebSocket = require('../middelware/socketApp')
-const PORT =  4000;
-app.set('port', 4000);
 
-
+const PORT = normalizePort(process.env.PORT || 4000);
+app.set('port', PORT);
+console.log('PORT ------', process.env.PORT)
 var server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(4000);
+server.listen(PORT);
 
-// let io = require('socket.io')(server, { cors: {
-//   origin: "*",
-//   methods: ["GET", "POST"]
-// }})
-// global.io = io 
-// io.on('connection', (socket) => {
-//   WebSocket.connection(socket); // Call the WebSocket class method
-// });
+let io = require('socket.io')(server, { cors: {
+  origin: "*",
+  methods: ["GET", "POST"]
+}})
+global.io = io 
+io.on('connection', (socket) => {
+  WebSocket.connection(socket); // Call the WebSocket class method
+});
 
 server.on('error', onError);
 server.on('listening', onListening);
