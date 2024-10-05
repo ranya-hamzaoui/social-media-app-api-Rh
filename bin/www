@@ -7,7 +7,7 @@ const config = require('../config/server');
 require('dotenv').config();
 const WebSocket = require('../middelware/socketApp')
 const PORT =  4000;
-app.set('port', PORT);
+app.set('port', 4000);
 
 
 var server = http.createServer(app);
