@@ -20,6 +20,8 @@ const routes = require('./routes/index');
 const upload = require('./helpers/upload');
 
 var app = express(); 
+const WebSocket = require('./middelware/socketApp')
+const http = require('http');
 
 app.set("views", path.join(__dirname, "views")); 
 app.set("view engine", "hbs");
@@ -79,8 +81,30 @@ app.use(function(req, res, next) {
 });
 app.use(ErrorHandle);
 
-// const port = process.env.PORT || 4000;
-// app.listen(port, () => {
+const server = http.createServer(app);
+const PORT = process.env.PORT || 4000;
+
+// app.listen(PORT, () => {
 //   console.log(`Server is running on port ${port}`);
 // });
-module.exports = app
+
+let io = require('socket.io')(server, { cors: {
+  origin: "*",
+  methods: ["GET", "POST"]
+}})
+global.io = io 
+io.on('connection', (socket) => {
+  WebSocket.connection(socket); // Call the WebSocket class method
+});
+
+server.listen(PORT);
+server.on('listening', () =>  {
+  var addr = server.address();
+  var bind = typeof addr === 'string' ?
+    'pipe ' + addr :
+    'port ' + addr.port;
+  // debug('Listening on ' + bind);
+  console.log('Listening on',bind)
+  // logger.debug('Listening on ' + bind)
+})
+// module.exports = app

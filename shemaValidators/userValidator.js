@@ -40,6 +40,5 @@ exports.loginSchema = (req, res, next) => {
   if (error) {
     return res.status(400).json(ResponseRender(400,errors_messages.BAD_REQUEST,{message:error.message}));
   }
-  console.log('it ok!!!!!!!')
   next();
 };
